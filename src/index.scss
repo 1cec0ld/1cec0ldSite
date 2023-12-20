@@ -1,0 +1,41 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+@media (prefers-color-scheme: dark){
+  :root {
+    color: #dadada;
+    background-color: #242424;
+  }
+  #topbar {
+    background-color: #363636;
+  }
+  #sidebar {
+    background-color: #363333;
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #242424;
+    background-color: #dadada;
+  }
+}
+
+
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  img.logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
