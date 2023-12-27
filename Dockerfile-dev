@@ -1,0 +1,17 @@
+FROM node:20.9.0-bookworm as build
+
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+# Install app dependencies. 
+# If the package.json and package-lock.json stays the same, Docker will use the cached version and skip npm install
+COPY package*.json .
+
+RUN npm install -g npm@latest
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]

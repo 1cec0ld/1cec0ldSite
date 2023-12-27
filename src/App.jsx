@@ -6,6 +6,7 @@ import {
 import Home from "./views/home";
 import Global from "./views/global";
 import { createTheme, ThemeProvider } from '@mui/material';
+import Auth from './views/auth';
 
 const router = createBrowserRouter([
   {
@@ -18,8 +19,7 @@ const router = createBrowserRouter([
       },
     ]
   }
-],
-{ basename: document.location.hostname === 'localhost' ? '' : '/1cec0ld'})
+])
 
 const theme = createTheme({
   palette: {
@@ -31,7 +31,9 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <RouterProvider router={router}/>
+      <Auth>
+        <RouterProvider router={router}/>
+      </Auth>
     </ThemeProvider>
   )
 }
