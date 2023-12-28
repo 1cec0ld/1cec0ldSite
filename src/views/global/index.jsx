@@ -127,14 +127,14 @@ export default function MiniDrawer() {
         </DrawerHeader>
         <Divider />
         <List>
-          <ListItem key="cpanel" disablePadding sx={{display: 'block'}}>
+          <ListItem key="l" disablePadding sx={{display: 'block'}}>
             <ListItemButton 
               sx={{
                 minHeight: 48,
                 justifyContent:  'initial' ,
                 px: 2.5,
               }}
-              component="a" href="/cpanel">
+              component="a" href="http://worrydream.com/404">
               <ListItemIcon
                 sx={{
                   minWidth: 0,
@@ -145,7 +145,7 @@ export default function MiniDrawer() {
                 <AdminPanelSettings />
               </ListItemIcon>
               <Typography sx={{pl: 1}} variant="body1" noWrap component="span">
-                cPanel
+                This no worky
               </Typography>
             </ListItemButton>
           </ListItem>
