@@ -8,7 +8,6 @@ services:
     networks:
       - backend
     ports:
-      - "3101:80"
       - "3110:443"
     volumes:
       - ./:/usr/src/app
