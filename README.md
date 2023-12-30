@@ -1,3 +1,18 @@
-# Client Portal
-## Description
-This is a client portal for a company that provides services to its clients. The portal allows clients to view their account information, request services, and view their service history. The portal also allows the company to view client information, view service requests, and view service history. The portal is built using React + Vite framework and is hosted on AWS S3 for development. The portal uses no database to store client and service information yet. The portal uses the MaterialUI framework for styling.
+#1cec0ld's site
+## About
+This is my personal site, where I post my projects and other stuff.
+
+
+
+## Projects
+### Games
+#### Momentum
+Drag the large object around and attempt to hit the smaller ones. If they hit you in the back, you lose a life. Beware, hitting them imparts your momentum to them, so they move faster, making them harder to dodge!
+
+#### Gravity
+Change the gravity of the planets, then start the game. The goal is to get the left side ball to the target planet using only the gravity of the planets in front of it.
+
+### Dance
+
+
+### Other

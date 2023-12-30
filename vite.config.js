@@ -5,8 +5,8 @@ import fs from 'fs'
 let keyFile = null;
 let certFile = null;
 try {
-  keyFile = fs.readFileSync('./dev_rxight_web_certs/localhost.key');
-  certFile = fs.readFileSync('./dev_rxight_web_certs/localhost.cer');
+  keyFile = fs.readFileSync('./nginx/certs/localhost.key');
+  certFile = fs.readFileSync('./nginx/certs/localhost.cer');
 } catch (err){
 }
 
@@ -19,7 +19,7 @@ export default defineConfig({
     css: true,
   },
   server: {
-    port: 3101,
+    port: 3102,
     https: {
       key: keyFile,
       cert: certFile,
