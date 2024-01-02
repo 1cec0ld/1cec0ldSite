@@ -147,7 +147,7 @@ export default function MiniDrawer() {
           }
         </DrawerHeader>
         <Divider />
-        <SideList/>
+        <SideList sidebarOpen={open} setSidebarOpen={handleDrawerOpen}/>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />

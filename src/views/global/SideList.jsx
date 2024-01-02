@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 
 
-export default function SideList()  {
+export default function SideList({sidebarOpen, setSidebarOpen}) {
   const [gamesCollapse, setGamesCollapse] = useState(false)
   const navigate = useNavigate()
 
@@ -23,7 +23,16 @@ export default function SideList()  {
         </ListItemButton>
       </ListItem>
       <ListItem key="hj" disablePadding sx={{display: 'block'}}>
-        <ListItemButton sx={{minHeight: 48, justifyContent:  'initial', px: 2.5}} onClick={() => setGamesCollapse(!gamesCollapse)}>
+        <ListItemButton sx={{minHeight: 48, justifyContent:  'initial', px: 2.5}} 
+          onClick={() => {
+            if(sidebarOpen){
+              setGamesCollapse(!gamesCollapse)
+            } else {
+              setGamesCollapse(true)
+              setSidebarOpen()
+            }
+          }}
+        >
           <ListItemIcon sx={{minWidth: 0, mr: open ? 3 : 'auto', justifyContent: 'center' }}>
             <SportsEsports />
           </ListItemIcon>
