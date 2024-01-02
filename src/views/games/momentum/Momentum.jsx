@@ -323,6 +323,9 @@ const ScoreSheet = ({lives, score}) => {
     <div>
       <div id="score">Score: {score}</div>
       <div id="lives">Lives: {lives}</div>
+      <p>Drag the large player around, aiming to hit the enemies.</p> 
+      <p>Hit them in their vulnerable white zone, don't let them hit you with their tough red zone!</p>
+      <p>Harder hits give you more points! Powerups give you bonuses!</p>
     </div>
   )
 }
