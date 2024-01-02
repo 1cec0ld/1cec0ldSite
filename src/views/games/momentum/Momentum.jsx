@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as PIXI from 'pixi.js';
-import ball from '../../../public/game/images/Pokemon_Server-ico.png'
-import smallBall from '../../../public/game/images/pokeball2.png'
-import fire from '../../../public/game/images/volcanobadge-t.png'
-import heart from '../../../public/game/images/soulbadge-t.png'
+import ball from '../../../public/images/Pokemon_Server-ico.png'
+import smallBall from '../../../public/images/pokeball2.png'
+import fire from '../../../public/images/volcanobadge-t.png'
+import heart from '../../../public/images/soulbadge-t.png'
 import { angleBetweenVectors, bounceVector, spritesCollide, vectorBetweenSprites, vectorLength } from './utilities';
 
 
@@ -305,10 +305,10 @@ const  GameBoard = ({lives, setLives, score, setScore}) => {
   }
 
   useEffect(() => {
+    document.getElementById('game').innerHTML = '';
     document.getElementById('game').appendChild(app.view);
     app.ticker.add(gameLoopFn);
     return () => {
-      document.getElementById('game').innerHTML = '';
       app.ticker.remove(gameLoopFn)
     }
   },[])
