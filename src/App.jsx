@@ -5,21 +5,38 @@ import {
 } from "react-router-dom";
 import Home from "./views/home";
 import Global from "./views/global";
+import Admin from "./views/admin";
 import { createTheme, ThemeProvider } from '@mui/material';
-import Auth from './views/auth';
+import AuthProvider from './views/auth';
+import Login from './views/login/';
+import Momentum from './views/games/momentum/';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "",
     element: <Global/>,
     children: [
       {
         path: "",
         element: <Home/>
       },
+      {
+        path: "login",
+        element: <Login/>
+      },
+      {
+        path: "admin",
+        element: <Admin/>
+      },
+      {
+        path: "momentum",
+        element: <Momentum />
+      }
     ]
   }
 ])
+
+
 
 const theme = createTheme({
   palette: {
@@ -31,9 +48,9 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Auth>
+      <AuthProvider>
         <RouterProvider router={router}/>
-      </Auth>
+      </AuthProvider>
     </ThemeProvider>
   )
 }

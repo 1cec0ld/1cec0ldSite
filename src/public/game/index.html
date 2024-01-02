@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+</head>
+<body>
+    <div id="headContainer" style="display:inline-block";>
+    
+    
+    
+    </div>
+    <span style="vertical-align:top";>Objective: Drag the main character to hit the moving targets in the back, don't get hit by them!<br>
+                                      Your score increases as you push them, they go faster too!<br>
+                                      Power-ups appear randomly, grab them to stay alive longer!</span>
+    <div id="gameContainer" style="display:inline-block";>
+    
+    
+    
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.1.3/pixi.min.js"></script>
+<script>
+    const GAME_WIDTH = 800;//window.innerWidth || document.documentElement.clientWidth || 
+document.body.clientWidth;
+    const GAME_HEIGHT = 800;//(window.innerHeight|| document.documentElement.clientHeight|| document.body.clientHeight)-60;
+    const LIVES_START = 3;
+    const SCORE_START = 0;
+    const MAX_POWERUPS_VISIBLE = 3;
+    const MAX_LIVES = 5;
+
+    const header = new PIXI.Application({ backgroundColor: 0x1099ff, height: 60 });
+    const app = new PIXI.Application({ backgroundColor: 0x1099bb, width: GAME_WIDTH, height: GAME_HEIGHT });
+    document.getElementById("headContainer").appendChild(header.view);
+    document.getElementById("gameContainer").appendChild(app.view);
+
+    // create a texture from an image path
+    const texture = PIXI.Texture.from('images/Pokemon_Server-ico.png');
+    const texture_width = 32;
+    const texture_enemy = PIXI.Texture.from('images/pokeball2.png');
+    const texture_enemy_width = 16;
+    const texture_fire = PIXI.Texture.from('images/volcanobadge-t.png');
+    const texture_fire_width = 16;
+    const texture_heart = PIXI.Texture.from('images/soulbadge-t.png');
+    const texture_heart_width = 16;
+    // Scale mode for pixelation
+    texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+    texture_enemy.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+    texture_fire.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+    texture_heart.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+    
+    enemies = [];
+    player = {};
+    powerups = [];
+    enemyStartSpeed = 2;
+    enemyCount = 2;
+    scoreboard = {};
+    score = SCORE_START;
+    lives = LIVES_START;
+    starttime = Date.now();
+    markedtime = 0;
+    
+    setup();
+    function setup(){
+        
+        score = SCORE_START;
+        scoreboard = new PIXI.Text("Score: " + String(score));
+        scoreboard.x = 400;
+        scoreboard.y = 20;
+        scoreboard.anchor._x = 0.5
+        scoreboard.anchor._y = 0.5
+        header.stage.addChild(scoreboard);
+        lives = LIVES_START;
+        lifeboard = new PIXI.Text("Lives: " + String(lives));
+        lifeboard.x = 400;
+        lifeboard.y = 40;
+        lifeboard.anchor._x = 0.5
+        lifeboard.anchor._y = 0.5
+        header.stage.addChild(lifeboard);
+        starttime = Date.now();
+        
+
+        createPlayer(
+            Math.floor(app.screen.width/2),
+            Math.floor(app.screen.height/2)
+        );
+        for( let x = 0; x < enemyCount; x++){
+            createEnemy(
+                Math.floor(Math.random() * app.screen.width),
+                Math.floor(Math.random() * app.screen.height)
+            );
+        }
+        app.ticker.add(delta => gameLoop(delta));
+    }
+    function gameLoop(delta){
+        player.velocity.x = (player.x-player.lastX) / delta;
+        player.velocity.y = (player.y-player.lastY) / delta;
+        
+        player.lastX = player.x;
+        player.lastY = player.y;
+        
+        enemies.forEach(function(enemy, index, object) {
+            enemy.rotation = Math.sign(enemy.direction.y)*angleBetweenVectors(enemy.direction, {x:1,y:0})+Math.PI/2;
+            enemy.x = enemy.x + enemy.direction.x;
+            enemy.y = enemy.y + enemy.direction.y;
+            containEnemy(enemy, {x: 0, y: 0, width: app.screen.width, height: app.screen.height});
+            
+            
+            if(markedtime != Math.round((Date.now()-starttime)/1000)){
+                
+            }
+            
+            if(spritesCollide(enemy,player)){
+                if(angleBetweenVectors(enemy.direction, vectorBetweenSprites(enemy,player)) <= Math.PI/2){
+                    lives--;
+                    lifeboard.text = "Lives: " + String(lives);
+                    
+                    enemy.direction = bounceVector(enemy.direction, vectorBetweenSprites(enemy, player));
+                    
+                    if(lives == 0){
+                        app.stage.removeChild(player);
+                        player.x = -1000;
+                        player.y = -1000;
+                        scoreboard.text = "Game Over!"
+                        lifeboard.text = "Score: " + score;
+                    }
+                } else {
+                    score += Math.round(vectorLength(player.velocity));
+                    enemy.direction.x += player.velocity.x;
+                    enemy.direction.y += player.velocity.y;
+                    scoreboard.text = "Score: " + String(score);
+                }
+            }
+        });
+        if(lives > 0){
+            powerups.forEach(function(powerup, index, object){
+                if(spritesCollide(powerup, player)){
+                    switch(powerup.stat){
+                        case 0:
+                            powerups.splice(index,1);
+                            app.stage.removeChild(powerup);
+                            enemies.forEach(function(enemy){
+                                enemy.direction.x = enemy.direction.x/(Math.abs(.1*enemy.direction.x) + 1);
+                                enemy.direction.y = enemy.direction.y/(Math.abs(.1*enemy.direction.y) + 1);
+                            });
+                            break;
+                        case 1:
+                            if(lives < MAX_LIVES){
+                                powerups.splice(index,1);
+                                app.stage.removeChild(powerup);
+                                lives++;
+                                lifeboard.text = "Lives: " + String(lives);
+                            }
+                            break;
+                        default:
+                            alert("Unhandled powerup.stat: " + powerup.stat);
+                    }
+                }
+            });
+            
+            if(powerups.length < MAX_POWERUPS_VISIBLE && Math.random() > 0.95){
+                if(((Math.round(Date.now()/100)) % 50) == 0){
+                    createPowerup(
+                        Math.floor(Math.random() * app.screen.width),
+                        Math.floor(Math.random() * app.screen.height),
+                        0,
+                        texture_fire
+                    );
+                } else if(((Math.round(Date.now()/100)) % 50) == 1){
+                    createPowerup(
+                        Math.floor(Math.random() * app.screen.width),
+                        Math.floor(Math.random() * app.screen.height),
+                        1,
+                        texture_heart
+                    );
+                }
+            }
+        }
+    }
+    function vectorBetweenSprites(one, two){
+        return {
+            x: two.x-one.x,
+            y: two.y-one.y
+        };
+    }
+    function bounceVector(velocity, relativePosition){
+        normalizedPosition = normalizeVector(relativePosition);
+        dotProductResult = dotProduct(velocity, normalizedPosition);
+        return {
+            x: velocity.x - (2 * dotProductResult * normalizedPosition.x),
+            y: velocity.y - (2 * dotProductResult * normalizedPosition.y)
+        };
+    }
+    function normalizeVector(vec){
+        x = vec.x/vectorLength(vec);
+        y = vec.y/vectorLength(vec);
+        return {
+            x: x,
+            y: y
+        }
+    }
+    function dotProduct(vec1,vec2){
+        return vec1.x*vec2.x + vec1.y*vec2.y;
+    }
+    function vectorLength(vec){
+        return Math.sqrt(vec.x*vec.x + vec.y*vec.y);
+    }
+    function spritesCollide(sprite, otherSprite){
+        let spriteRadius = sprite.width*sprite.anchor._x;
+        let otherSpriteRadius = otherSprite.width*otherSprite.anchor._x;
+        let minimumDistanceAllowedSquared = Math.pow(spriteRadius+otherSpriteRadius,2);
+        return (Math.pow(sprite.x-otherSprite.x,2)+Math.pow(sprite.y-otherSprite.y,2) < minimumDistanceAllowedSquared);
+    }
+    function angleBetweenVectors(one, two){
+        let dotProduct = (one.x * two.x) + (one.y * two.y);
+        let lengthOne = vectorLength(one);
+        let lengthTwo = vectorLength(two);
+        let cosine = dotProduct/(lengthOne*lengthTwo);
+        return Math.acos(cosine);
+    }
+    function createPowerup(x,y, stat, texture){
+        const powerup = new PIXI.Sprite(texture);
+        powerup.stat = stat;
+        powerup.anchor.set(0.5);
+        powerup.x = Math.min(Math.max(x, 16), GAME_WIDTH-16);
+        powerup.y = Math.min(Math.max(y, 16), GAME_WIDTH-16);
+        
+        
+        
+        powerups.push(powerup);
+        
+        app.stage.addChild(powerup);
+    }
+    function createEnemy(x, y){
+        const enemy = new PIXI.Sprite(texture_enemy);
+        
+        /*
+        enemy.interactive = true;
+        enemy.buttonMode = true;
+        enemy.on('pointerdown', helpMe);
+        */
+        
+        enemy.anchor.set(0.5);
+        enemy.interactive = true;
+        enemy.x = Math.min(Math.max(x, 16), GAME_WIDTH-16);
+        enemy.y = Math.min(Math.max(y, 16), GAME_HEIGHT-16);
+        
+        //generate randomized vectors, get their magnitude (the hypotenuse) so I can divide by it
+        let preNormalize = {
+            x: Math.random()*2 - 1,
+            y: Math.random()*2 - 1
+        }
+        
+        let hypotenuse = vectorLength(preNormalize);
+        
+        //use those vectors but divide by the hypotenuse to make the total magnitude 1 
+        //multiply by start speed because 1 is kinda slow
+        enemy.direction = {x: (enemyStartSpeed / hypotenuse) * preNormalize.x , y: (enemyStartSpeed / hypotenuse) * preNormalize.y};
+
+        enemy.timeboost = 0;
+        
+        enemies.push(enemy);
+
+        // add it to the stage
+        app.stage.addChild(enemy);
+    }
+    /*
+    function helpMe(){
+        console.log(this);
+    }
+    */
+    function createPlayer(x, y) {
+        // create our player..
+        player = new PIXI.Sprite(texture);
+
+        // enable the player to be interactive... this will allow it to respond to mouse and touch events
+        player.interactive = true;
+
+        // this button mode will mean the hand cursor appears when you roll over the player with your mouse
+        player.buttonMode = true;
+
+        // center the player's anchor point
+        player.anchor.set(0.5);
+
+        // setup events for mouse + touch using
+        // the pointer events
+        player
+            .on('pointerdown', onDragStart)
+            .on('pointerup', onDragEnd)
+            .on('pointerupoutside', onDragEnd)
+            .on('pointermove', onDragMove);
+
+        // move the sprite to its designated position
+        player.x = x;
+        player.y = y;
+        //record last position for velocity calculation
+        player.lastX = x;
+        player.lastY = y;
+        
+        player.velocity = {x: 0, y: 0};
+
+        // add it to the stage
+        app.stage.addChild(player);
+    }
+
+    function onDragStart(event) {
+        // store a reference to the data
+        // the reason for this is because of multitouch
+        // we want to track the movement of this particular touch
+        this.data = event.data;
+        //this.alpha = 0.5;
+        this.dragging = true;
+    }
+
+    function onDragEnd() {
+        //this.alpha = 1;
+        this.dragging = false;
+        // set the interaction data to null
+        this.data = null;
+    }
+
+    function onDragMove() {
+        if (this.dragging) {
+            const newPosition = this.data.getLocalPosition(this.parent);
+            this.x = newPosition.x;
+            this.y = newPosition.y;
+            
+            containPlayer(this, {x: 0, y: 0, width: app.screen.width, height: app.screen.height});
+        }
+    }
+
+    function containPlayer(sprite, container){
+        let collision = undefined;
+        
+        //Left
+        if (sprite.x < container.x+texture_width*sprite.anchor._x) {
+            sprite.x = container.x+texture_width*sprite.anchor._x;
+            collision = "left";
+        }
+
+        //Top
+        if (sprite.y < container.y+texture_width*sprite.anchor._y) {
+            sprite.y = container.y+texture_width*sprite.anchor._y;
+            collision = "top";
+        }
+
+        //Right
+        if (sprite.x > container.width - texture_width*sprite.anchor._x) {
+            sprite.x = container.width - texture_width*sprite.anchor._x;
+            collision = "right";
+        }
+
+        //Bottom
+        if (sprite.y > container.height - texture_width*sprite.anchor._y) {
+            sprite.y = container.height - texture_width*sprite.anchor._y;
+            collision = "bottom";
+        }
+
+        //Return the `collision` value
+        return collision;
+    }
+    function containEnemy(sprite, container){
+        let collision = undefined;
+        let tweak = 0.15;
+        
+        //Left
+        if (sprite.x < container.x + texture_enemy_width*sprite.anchor._x) {
+            sprite.x = container.x + texture_enemy.width*sprite.anchor._x;
+            sprite.direction.x *= -1;
+            sprite.direction.x += tweak*(Math.random()-1);
+            collision = "left";
+        }
+
+        //Top
+        if (sprite.y < container.y + texture_enemy_width*sprite.anchor._y) {
+            sprite.y = container.y + texture_enemy.width*sprite.anchor._y;
+            sprite.direction.y *= -1;
+            sprite.direction.y += tweak*(Math.random()-1);
+            collision = "top";
+        }
+
+        //Right
+        if (sprite.x > container.width - texture_enemy_width*sprite.anchor._x) {
+            sprite.x = container.width - texture_enemy.width*sprite.anchor._x;
+            sprite.direction.x *= -1;
+            sprite.direction.x += tweak*(Math.random()-1);
+            collision = "right";
+        }
+
+        //Bottom
+        if (sprite.y > container.height - texture_enemy_width*sprite.anchor._y) {
+            sprite.y = container.height - texture_enemy_width*sprite.anchor._y
+            sprite.direction.y *= -1;
+            sprite.direction.y += tweak*(Math.random()-1);
+            collision = "bottom";
+        }
+
+        //Return the `collision` value
+        return collision;
+    }
+</script>
+
+</body>
+</html>

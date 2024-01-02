@@ -7,10 +7,12 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { AdminPanelSettings, ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { Outlet } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Lock, LockOpen } from '@mui/icons-material';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import logo from '../../public/fractalice.gif'
-import { Avatar, CardHeader, List, ListItem, ListItemButton, ListItemIcon } from '@mui/material';
+import { Avatar, Button, CardHeader} from '@mui/material';
+import SideList from './SideList';
+import { useAuth } from '../auth/Auth';
 
 const drawerWidth = 240;
 
@@ -83,7 +85,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function MiniDrawer() {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
+  const { token, loginAction, logOut } = useAuth()
+  const navigate = useNavigate()
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -93,18 +97,35 @@ export default function MiniDrawer() {
     setOpen(false);
   };
 
-  /** image component with source in /assets/fractalice.gif */
+  // MaterialUI button to log in or log out
+  const LogButton = ({isAuthenticated}) => {
+    return (
+      <Button
+        size='large' 
+        variant='contained' 
+        onClick={() => {
+          isAuthenticated ? logOut() : navigate('/login')
+        }}
+        startIcon={isAuthenticated ? null : <LockOpen/>}
+        endIcon={isAuthenticated ? <Lock/> : null}
+      >
+        {isAuthenticated ? 'Log out' : 'Log in'}
+      </Button>
+    )
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
       <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <CardHeader sx={!open && {marginLeft: `calc(${theme.spacing(7)} + 1px)`}}
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between'}}>
+          <CardHeader sx={{marginLeft: !open ? `calc(${theme.spacing(7)} + 1px)` : ''}}
             avatar={<Avatar component='span' alt="1ce" src={logo}/>}
             title={<Typography variant="h6" noWrap component="span">
-              <a href="/">{window.location.hostname}</a>
+              <Link to="/">{window.location.hostname}</Link>
             </Typography>}
           />
+          <LogButton isAuthenticated={token.length > 0}/>
+
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
@@ -126,30 +147,7 @@ export default function MiniDrawer() {
           }
         </DrawerHeader>
         <Divider />
-        <List>
-          <ListItem key="l" disablePadding sx={{display: 'block'}}>
-            <ListItemButton 
-              sx={{
-                minHeight: 48,
-                justifyContent:  'initial' ,
-                px: 2.5,
-              }}
-              component="a" href="http://worrydream.com/404">
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : 'auto',
-                  justifyContent: 'center'
-                }}
-                >
-                <AdminPanelSettings />
-              </ListItemIcon>
-              <Typography sx={{pl: 1}} variant="body1" noWrap component="span">
-                This no worky
-              </Typography>
-            </ListItemButton>
-          </ListItem>
-        </List>
+        <SideList/>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />

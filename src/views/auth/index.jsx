@@ -1,2 +1,2 @@
-import Auth from './Auth'
-export default Auth
+import AuthProvider from './Auth'
+export default AuthProvider
