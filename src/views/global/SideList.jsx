@@ -50,6 +50,13 @@ export default function SideList({sidebarOpen, setSidebarOpen}) {
               </Typography>
             </ListItemButton>
           </ListItem>
+          <ListItem key="s" disablePadding sx={{display: 'block', pl: 6}}>
+            <ListItemButton onClick={() => navigate('/momentum2')}>
+              <Typography sx={{pl: 1.5}} variant="body1" noWrap component="span">
+                MomentumBeta
+              </Typography>
+            </ListItemButton>
+          </ListItem>
           <ListItem key="hjf" disablePadding sx={{display: 'block', pl: 6}}>
             <ListItemButton>
               <Typography sx={{pl: 1.5}} variant="body1" noWrap component="span">

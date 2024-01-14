@@ -10,6 +10,7 @@ import { createTheme, ThemeProvider } from '@mui/material';
 import AuthProvider from './views/auth';
 import Login from './views/login/';
 import Momentum from './views/games/momentum/';
+import Momentum2 from './views/games/momentum2/index.jsx';
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
       {
         path: "momentum",
         element: <Momentum />
+      },
+      {
+        path: 'momentum2',
+        element: <Momentum2 />
       }
     ]
   }
