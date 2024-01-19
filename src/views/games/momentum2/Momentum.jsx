@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Stage, Layer, Image } from 'react-konva';
+import { Stage, Layer, Image, Circle } from 'react-konva';
 import loadImage from './ImageLoader.js';
-import useBouncingAnimation from './Animation.js';
+import useBouncingAnimation, { getRandomVelocityNudge } from './Animation.js';
+import useCollisionDetection from './CollisionDetection.js';
 
 import ball from '../../../public/images/Pokemon_Server-ico.png'
 import smallBall from '../../../public/images/pokeball2.png'
@@ -25,39 +26,54 @@ export default function Wrapper () {
 
   return (
     <div ref={divRef} style={{width: '700px', height: '700px'}}>
-      <Momentum fire={fire} canvasWidth={dimensions.width} canvasHeight={dimensions.height}/>
+      <Momentum smallBall={smallBall} ball={ball} canvasWidth={dimensions.width} canvasHeight={dimensions.height}/>
     </div>
   )
 }
 
-function Momentum({fire, canvasWidth, canvasHeight}) {
-  const [image, setImage] = useState(null);
-  const imageRef = useRef(null);
+const Momentum = ({ smallBall, ball, canvasWidth, canvasHeight }) => {
+  // State hooks for the images of the fire and ball sprites
+  const [smallBallImage, setFireImage] = useState(null);
+  const [ballImage, setBallImage] = useState(null);
 
-  // Image loading
+  // Refs for the fire and ball sprites to access their properties
+  const smallBallRef = useRef(null);
+  const ballRef = useRef(null);
+
+  // State hooks for managing the velocity (direction and speed) of the smallBall sprite
+  const [dx, setDx] = useState(getRandomVelocityNudge()*5);
+  const [dy, setDy] = useState(getRandomVelocityNudge()*5);
+
+  // Effect hook for loading the smallBall image
   useEffect(() => {
     loadImage(
-      fire,
-      (loadedImage) => setImage(loadedImage), // Update the state with the loaded image
-      e => console.error("Error loading image:", e)
+      smallBall,
+      (img) => setFireImage(img),
+      (e) => console.error("Error loading fire image:", e)
     );
-  }, [fire]);
+  }, [smallBall]);
 
-  // Bouncing animation
-  useBouncingAnimation(imageRef, canvasWidth, canvasHeight);
+  // Effect hook for loading the ball image
+  useEffect(() => {
+    loadImage(
+      ball,
+      (img) => setBallImage(img),
+      (e) => console.error("Error loading ball image:", e)
+    );
+  }, [ball]);
 
+  // Hook for animating the smallBall sprite with bouncing logic
+  useBouncingAnimation(smallBallRef, canvasWidth, canvasHeight, setDx, setDy, dx, dy);
+  // Effect hook for checking collisions between fire and ball sprites
+  useCollisionDetection(smallBallRef, ballRef, dx, dy, setDx, setDy)
+
+  // Rendering the Stage and Layer with smallBall and ball Images
   return (
     <Stage width={canvasWidth} height={canvasHeight} style={{backgroundColor: 'lightblue'}}>
       <Layer>
-        <Image 
-          ref={imageRef}
-          image={image} 
-          x={50} 
-          y={50}
-        />
+        <Image ref={smallBallRef} image={smallBallImage} x={50} y={50} draggable />
+        <Image ref={ballRef} image={ballImage} x={100} y={100} draggable />
       </Layer>
     </Stage>
   );
-
-
 };

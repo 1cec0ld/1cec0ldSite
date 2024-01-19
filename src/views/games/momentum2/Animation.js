@@ -1,56 +1,36 @@
-// Animation.js
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-const constantVelocity = 10; // Set your desired constant velocity
+export const getRandomVelocityNudge = () => Math.random() * 0.4 - 0.2; 
+// Generates a small random number between -0.2 and 0.2
 
-const getRandomDirection = () => Math.random() * 2 - 1; // Random direction between -1 and 1
-
-const useBouncingAnimation = (ref, canvasWidth, canvasHeight) => {
-  const [dx, setDx] = useState(getRandomDirection());
-  const [dy, setDy] = useState(getRandomDirection());
-
-  // Adjust the initial velocities to maintain the constant overall velocity
-  useEffect(() => {
-    const magnitude = Math.sqrt(dx * dx + dy * dy);
-    setDx((dx / magnitude) * constantVelocity);
-    setDy((dy / magnitude) * constantVelocity);
-  }, []); // Empty dependency array to run only once
-
+const useBouncingAnimation = (ref, canvasWidth, canvasHeight, setDx, setDy, dx, dy) => {
   useEffect(() => {
     if (ref.current) {
-      const anim = new Konva.Animation((frame) => {
+      const anim = new Konva.Animation(() => {
         const node = ref.current;
 
-        let newDx = dx;
-        let newDy = dy;
+        let newX = node.x() + dx;
+        let newY = node.y() + dy;
 
         // Check for horizontal bounds
-        if (node.x() + dx > canvasWidth - node.width() || node.x() + dx < 0) {
-          newDx = -dx;
+        if (newX > canvasWidth - node.width() || newX < 0) {
+          setDx(-dx + getRandomVelocityNudge()); // Reverse and slightly randomize horizontal direction
         }
 
         // Check for vertical bounds
-        if (node.y() + dy > canvasHeight - node.height() || node.y() + dy < 0) {
-          newDy = -dy;
+        if (newY > canvasHeight - node.height() || newY < 0) {
+          setDy(-dy + getRandomVelocityNudge()); // Reverse and slightly randomize vertical direction
         }
 
-        // Apply the new velocity
-        setDx(newDx);
-        setDy(newDy);
-
-        // Update position
-        node.x(node.x() + newDx);
-        node.y(node.y() + newDy);
+        node.x(newX);
+        node.y(newY);
 
       }, ref.current.getLayer());
 
       anim.start();
-
       return () => anim.stop();
     }
-  }, [ref, dx, dy, canvasWidth, canvasHeight]);
-
-  return [dx, dy];
+  }, [ref, canvasWidth, canvasHeight, setDx, setDy, dx, dy]);
 };
 
 export default useBouncingAnimation;
